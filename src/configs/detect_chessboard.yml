@@ -1,0 +1,35 @@
+parallel: True
+display: False
+save: True
+
+save_dir: output
+output_dir: output/chessboard_corners.pkl
+
+board:
+  cols: 6
+  rows: 4
+  square_size:      # CHESSBOARD_SQRS in meters
+
+image:
+  width:
+  height:
+
+images:
+  cam0:
+    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000050215012/2025-06-11_14-35-19
+    offset: 0
+  cam1:
+    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000619514412/2025-06-11_14-35-19
+    offset: 0
+  cam2:
+    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000623301312/2025-05-26_14-30-12
+    offset: 0
+  cam3:
+    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000756301312/2025-05-26_14-30-12
+    offset: 0
+  cam4:
+    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000757214012/2025-06-11_14-34-54
+    offset: 0
+  cam5:
+    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_001512595012/2025-06-11_14-34-54
+    offset: 0
