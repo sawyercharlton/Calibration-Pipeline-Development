@@ -17,10 +17,17 @@ See `requirements.txt`
     ```ruby
     python detect_chessboard.py
     ```
+ - Calculate intrinsic parameters
+    ```ruby
+    python calc_intrinsic.py
+    ```
+ - Calculate extrinsic parameters
+    ```ruby
+    python calc_extrinsic.py
+    ```
 
 ## Reference
 - A private repo from https://github.com/sandstorm12
 - https://github.com/cvlab-epfl/multiview_calib
 
 ## Acknowledgements
-*Yubo Huang*

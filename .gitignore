@@ -119,9 +119,10 @@ data
 src/output/
 tmp/
 res/
+/src/artifacts/
 
 .idea/
 .vscode/
 .DS_Store
 scripts/
-
+note.txt
