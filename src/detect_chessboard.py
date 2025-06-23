@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 from threading import Thread
+import json
 
 
 criteria = (cv2.TERM_CRITERIA_MAX_ITER | cv2.TERM_CRITERIA_EPS, 30, 0.001)
@@ -19,8 +20,7 @@ def _get_arguments():
         '-c', '--config',
         help='Path to the config file',
         type=str,
-        required=False,
-        default='configs/detect_chessboard.yml',
+        default='configs/detect_chessboard.yaml',
     )
 
     args = parser.parse_args()
@@ -37,20 +37,26 @@ def _load_configs(path):
 
 def extract_chessboardcorners(path_imgs, images_info, camera_name, configs):
     offset = configs['images'][camera_name]['offset']
+    max_save = configs.get('max_save', float('inf'))
+    max_display = configs.get('max_display', 10)  # default fallback
 
     paths_imgs = sorted(glob.glob(f"{path_imgs}/*"))
     paths_imgs = paths_imgs[offset:]
 
-    if not images_info.__contains__(camera_name):
+    if camera_name not in images_info:
         images_info[camera_name] = []
 
     success_count = 0
+    saved_count = 0
     display_count = 0
-    max_display = 10
 
     bar = tqdm(paths_imgs, dynamic_ncols=True, leave=False)
     bar.set_description(camera_name)
+
     for frame_index, path_img in enumerate(bar):
+        if saved_count >= max_save:
+            break
+
         image = cv2.imread(path_img)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -59,31 +65,28 @@ def extract_chessboardcorners(path_imgs, images_info, camera_name, configs):
             cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE)
 
         if ret:
+            success_count += 1
             corners = cv2.cornerSubPix(gray, corners, (3, 3), (-1, -1), criteria)
             corners = corners.reshape(configs['board']['rows'], configs['board']['cols'], 2)
             if corners[0, 0, 1] > corners[-1, -1, 1]:
                 corners = corners[::-1, ::-1]
             corners = corners.reshape(-1, 1, 2).astype(np.float32)
             corners = corners.tolist()
+
+            if configs.get('save', False):
+                _save(image.copy(), corners, configs['save_dir'], camera_name, frame_index)
+                saved_count += 1
         else:
             corners = []
 
         images_info[camera_name].append([ret, corners])
 
-        if ret:
-            success_count += 1
+        if ret and configs.get('display', False) and display_count < max_display:
+            if not _display(image, corners):
+                break
+            display_count += 1
 
-            # Save image (independent of display)
-            if configs.get('save', False):
-                _save(image.copy(), corners, configs['save_dir'], camera_name, frame_index)
-
-            # Display image (independent of save)
-            if configs.get('display', False) and display_count < max_display:
-                if not _display(image, corners):
-                    break
-                display_count += 1
-
-    print(f"\nFound {success_count} chessboards from {len(paths_imgs)} images for {camera_name}\n")
+    print(f"\nFound {success_count} chessboards and saved {saved_count} images from {len(paths_imgs)} for {camera_name}\n")
 
 
 def _display(image, corners, save_dir, camera_name, frame_index):
@@ -133,9 +136,19 @@ def calculate_total_success_dets(images_info):
     print(f"Grand num of found chessboards: {total_success_counter}")
 
 
-def _store_artifacts(images_info, configs):
-    with open(configs['output_dir'], 'wb') as handle:
-        pickle.dump(images_info, handle)
+def _store_artifacts(artifact, configs):
+    pkl_path = configs['output_dir']
+
+    # Save as pickle (binary)
+    with open(pkl_path, 'wb') as handle:
+        pickle.dump(artifact, handle)
+
+    # Derive JSON path by replacing .pkl with .json
+    json_path = os.path.splitext(pkl_path)[0] + ".json"
+
+    # Save as JSON (human-readable)
+    with open(json_path, 'w') as handle:
+        json.dump(artifact, handle, indent=2)
 
 
 def detect_chessboards(configs):
@@ -165,6 +178,6 @@ if __name__ == "__main__":
     args = _get_arguments()
     configs = _load_configs(args.config)
 
-    print(f"Config loaded: {configs}")
+    print(f"Config loaded: {configs}\n")
 
     detect_chessboards(configs)

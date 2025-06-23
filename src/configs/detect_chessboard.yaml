@@ -1,18 +1,17 @@
 parallel: True
-display: False
-save: True
 
-save_dir: output
-output_dir: output/chessboard_corners.pkl
+display: False
+max_display: 10
+
+save: True
+max_save: 9999
+save_dir: artifacts
+
+output_dir: artifacts/chessboard_corners.pkl  # also produce a .yaml file for human to read
 
 board:
   cols: 6
   rows: 4
-  square_size:      # CHESSBOARD_SQRS in meters
-
-image:
-  width:
-  height:
 
 images:
   cam0:
