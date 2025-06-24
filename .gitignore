@@ -125,4 +125,4 @@ res/
 .vscode/
 .DS_Store
 scripts/
-src/artifacts/note.txt
+src/artifacts/reprojection_error.txt
