@@ -1,0 +1,4 @@
+cam_left_dir: artifacts/cam5/
+cam_right_dir: artifacts/cam4/
+output_path: artifacts/stereo_board.avi
+fps: 5
