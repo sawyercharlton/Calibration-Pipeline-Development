@@ -10,25 +10,25 @@ save_dir: artifacts
 output_dir: artifacts/chessboard_corners.pkl  # also produce a .yaml file for human to read
 
 board:
-  cols: 6
-  rows: 4
+  cols: 8
+  rows: 5
 
 images:
   cam0:
-    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000050215012/2025-06-11_14-35-19
+    path: C:/Users/yuboh/GitHub/Multiview-Motion-Capture-Data-Processing/src/output/exp/VID_20250702_125200/0_matched
     offset: 0
   cam1:
-    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000619514412/2025-06-11_14-35-19
+    path: C:/Users/yuboh/GitHub/Multiview-Motion-Capture-Data-Processing/src/output/exp/VID_20250702_125200/1_matched
     offset: 0
   cam2:
-    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000623301312/2025-05-26_14-30-12
+    path: C:/Users/yuboh/GitHub/Multiview-Motion-Capture-Data-Processing/src/output/exp/VID_20250702_125200/2_matched
     offset: 0
-  cam3:
-    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000756301312/2025-05-26_14-30-12
-    offset: 0
-  cam4:
-    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000757214012/2025-06-11_14-34-54
-    offset: 0
-  cam5:
-    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_001512595012/2025-06-11_14-34-54
-    offset: 0
+#  cam3:
+#    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000756301312/2025-05-26_14-30-12
+#    offset: 0
+#  cam4:
+#    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_000757214012/2025-06-11_14-34-54
+#    offset: 0
+#  cam5:
+#    path: C:/Users/yuboh/GitHub/data/extracted_frames/k4a_001512595012/2025-06-11_14-34-54
+#    offset: 0

@@ -7,11 +7,33 @@ import pickle
 import argparse
 import numpy as np
 from tqdm import tqdm
+import logging
+
+
+def setup_logger(log_path='calibration.log'):
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # Console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+
+    # File handler
+    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler.setLevel(logging.INFO)
+
+    # Formatter
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s', datefmt='%H:%M:%S')
+    console.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(console)
+    logger.addHandler(file_handler)
+
+    return logger
+
 
 ORDER_VALID = (
-    'cam5/cam4',
-    'cam4/cam3',
-    'cam3/cam2',
     'cam2/cam1',
     'cam1/cam0',
 )
@@ -95,7 +117,19 @@ def calc_extrinsics(cam_1, cam_2, obj_points, intrinsics, extrinsics, configs):
     with open(configs['chessboards'], 'rb') as handler:
         images_info = pickle.load(handler)
 
+    drop_first_n = configs.get('drop_first_n_pairs')
+    max_pairs = configs.get('max_pairs')
+
     matching_pairs = find_matching_images(images_info, cam_1, cam_2)
+    # Drop first N pairs
+    if len(matching_pairs) > drop_first_n:
+        matching_pairs = matching_pairs[drop_first_n:]
+    else:
+        matching_pairs = []
+
+    if len(matching_pairs) > max_pairs:
+        step = len(matching_pairs) // max_pairs
+        matching_pairs = matching_pairs[::step][:max_pairs]
 
     # Technical Debt
     if len(matching_pairs) == 0:
@@ -129,8 +163,8 @@ def calc_extrinsics(cam_1, cam_2, obj_points, intrinsics, extrinsics, configs):
 
     end_time = time.time()
     elapsed = end_time - start_time
-    print(
-        f"[INFO] Stereo calibration between '{cam_1}' and '{cam_2}' completed in {elapsed:.2f} seconds using "
+    logger.info(
+        f"Stereo calibration between '{cam_1}' and '{cam_2}' completed in {elapsed:.2f} seconds using "
         f"{len(matching_pairs)} matching image pairs.")
 
     extrinsics[cam_1] = {
@@ -146,7 +180,7 @@ def calc_extrinsics(cam_1, cam_2, obj_points, intrinsics, extrinsics, configs):
 
 
 def calc_reprojection_error(cam_1, cam_2, obj_points, extrinsics, configs):
-    print(f"[INFO] Starting reprojection error calculation between '{cam_1}' and '{cam_2}'...")
+    logger.info(f"[INFO] Starting reprojection error calculation between '{cam_1}' and '{cam_2}'...")
 
     with open(configs['chessboards'], 'rb') as handler:
         images_info = pickle.load(handler)
@@ -186,7 +220,7 @@ def calc_reprojection_error(cam_1, cam_2, obj_points, extrinsics, configs):
         total_error += (error1 + error2) / 2
 
     average_error = total_error / len(img_points_1)
-    print(f"[INFO] Average reprojection error: {average_error:.4f} pixels\n")
+    logger.info(f"[INFO] Average reprojection error: {average_error:.4f} pixels\n")
 
 def calc_extrinsic(configs):
     obj_points = get_obj_points(configs)
@@ -225,6 +259,7 @@ if __name__ == "__main__":
     args = _get_arguments()
     configs = _load_configs(args.config)
 
-    print(f"Config loaded: {configs}\n")
+    logger = setup_logger(configs.get('log_pth'))
+    logger.info(f"Config loaded: {configs}")
 
     calc_extrinsic(configs)

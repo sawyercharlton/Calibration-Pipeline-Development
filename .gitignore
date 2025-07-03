@@ -126,3 +126,6 @@ res/
 .DS_Store
 scripts/
 src/artifacts/reprojection_error.txt
+/src/backup/
+/src/test.py
+

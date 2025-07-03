@@ -8,7 +8,27 @@ import time
 import platform
 import psutil
 import os
+import logging
 
+
+def setup_logger(log_path='intrinsic_calibration.log'):
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s', datefmt='%H:%M:%S')
+    console.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(console)
+    logger.addHandler(file_handler)
+
+    return logger
 
 def _get_arguments():
     parser = argparse.ArgumentParser()
@@ -49,9 +69,13 @@ def load_image_points(configs):
                 continue
 
             cameras[camera]['img_points'].append(corners)
-            # cameras[camera]['img_points'].append(np.squeeze(np.array(corners, dtype=np.float32)))
 
         img_points = cameras[camera]['img_points']
+
+        # Drop the first N chessboards
+        drop_n = configs.get('drop_first_n_chessboard', 0)
+        img_points = img_points[drop_n:]
+
         max_num = min(len(img_points), configs['max_chessboards'])
 
         # Uniformly spaced sampling
@@ -79,7 +103,7 @@ def calculate_intrinsics(cameras_info, configs):
         width = configs['image']['width']
         height = configs['image']['height']
 
-        print(f"\nStarting calibration for camera {key} with image points of shape {img_points.shape}...")
+        logger.info(f"Starting calibration for camera '{key}' with {len(img_points)} image samples...")
         start_time = time.time()
         ret, mtx, dist, rvecs, tvecs = \
             cv2.calibrateCamera(
@@ -89,7 +113,7 @@ def calculate_intrinsics(cameras_info, configs):
 
         end_time = time.time()
         elapsed = end_time - start_time
-        print(f"Calibration for camera {key} completed in {elapsed:.2f} seconds")
+        logger.info(f"Calibration for camera '{key}' completed in {elapsed:.2f} seconds.")
 
         mtx = mtx.tolist()
         dist = dist.tolist()
@@ -108,9 +132,9 @@ def calculate_intrinsics(cameras_info, configs):
     cpu_name = platform.processor() or platform.uname().processor
     cpu_count = psutil.cpu_count(logical=True)
     mem = psutil.virtual_memory()
-    print(f"CPU: {cpu_name}")
-    print(f"Cores: {cpu_count}")
-    print(f"RAM: {mem.total / 1e9:.2f} GB (Available: {mem.available / 1e9:.2f} GB)\n")
+    logger.info(f"CPU: {cpu_name}")
+    logger.info(f"Cores: {cpu_count}")
+    logger.info(f"RAM: {mem.total / 1e9:.2f} GB (Available: {mem.available / 1e9:.2f} GB)")
 
     _store_artifacts(intrinsics, configs)
 
@@ -139,6 +163,7 @@ if __name__ == "__main__":
     args = _get_arguments()
     configs = _load_configs(args.config)
 
-    print(f"Config loaded: {configs}\n")
+    logger = setup_logger(configs.get('log_path'))
+    logger.info(f"Config loaded: {configs}")
 
     calc_intrinsic(configs)

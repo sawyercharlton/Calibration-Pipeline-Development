@@ -1,11 +1,14 @@
 output_dir: artifacts/intrinsic.pkl  # also produce a .yaml file for human to read
 chessboards: artifacts/chessboard_corners.pkl
-max_chessboards: 100
+log_path: artifacts/intrinsic_calibration.log
+
+drop_first_n_chessboard: 50
+max_chessboards: 200
 
 board:
-  cols: 6
-  rows: 4
-  square_size: 38.2857 # unit: millimeters
+  cols: 8
+  rows: 5
+  square_size: 79 # unit: millimeters
 
 image:
   width: 1920

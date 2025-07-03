@@ -1,0 +1,8 @@
+skeletons: artifacts/detected_skeletons.pkl
+intrinsics: artifacts/intrinsic.pkl
+extrinsics: artifacts/extrinsic.pkl
+threshold: .5
+num_people: 1
+num_points: 33
+output: artifacts/3d_skeletons.pkl
+output_params: artifacts/params_global.pkl

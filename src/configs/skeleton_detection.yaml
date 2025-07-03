@@ -1,0 +1,24 @@
+model: "rtmpose-x_8xb256-700e_body8-halpe26-384x288"
+output: artifacts/detected_skeletons.pkl
+intrinsics: artifacts/intrinsic.pkl
+visualize: true
+save_dir: artifacts/keypoint_images
+max_saved_images_per_camera: 9999
+
+confidence_coeff: 1
+experiment_length: 494
+detect_max_x: 1920
+detect_min_height: 0
+detect_min_x: 0
+detect_threshold: 0.5
+#track_threshold: 0.6 # multi-person
+images:
+    cam0:
+      path: C:/Users/yuboh/GitHub/Multiview-Motion-Capture-Data-Processing/src/output/exp/VID_20250702_125408/0_matched
+      offset: 0
+    cam1:
+      path: C:/Users/yuboh/GitHub/Multiview-Motion-Capture-Data-Processing/src/output/exp/VID_20250702_125408/1_matched
+      offset: 0
+    cam2: 
+      path: C:/Users/yuboh/GitHub/Multiview-Motion-Capture-Data-Processing/src/output/exp/VID_20250702_125408/2_matched
+      offset: 0
